@@ -14,8 +14,8 @@ pub type FGoldilocks = Fp64<MontBackend<FGoldilocksConfig, 1>>;
 
 fn main() {
     let mut rng = test_rng();
-    let log_n = 8;
-    let log_m = 15;
+    let log_n = 10;
+    let log_m = 14;
     let f_coeff = (0..(1 << log_n))
         .map(|_| {
             (0..(1 << log_m))
@@ -30,13 +30,6 @@ fn main() {
         .iter()
         .map(|x| domain.fft(x))
         .collect::<Vec<Vec<FGoldilocks>>>();
-    // let f_codeword_trans = (0..(1 << (log_m + 1)))
-    //     .map(|i| {
-    //         (0..(1 << log_n))
-    //             .map(|j| f_codeword[j][i])
-    //             .collect::<Vec<_>>()
-    //     })
-    //     .collect::<Vec<_>>();
     println!("{}", start.elapsed().as_millis());
 
     let a = (0..(1 << log_n) * 8 * 256)
@@ -68,5 +61,15 @@ fn main() {
             }
         }
     }
+    for i in hashes.iter_mut() {
+        for j in i.iter_mut() {
+            *j %= 18446744069414584321;
+        }
+    }
     println!("{}", start.elapsed().as_millis());
+
+    println!("Shape of A: {} times {}", a[0].len(), a.len() / 256 * 8);
+    println!("Shape of F: {} times {}", f_coeff.len(), f_coeff[0].len());
+    println!("Shape of B: {} times {}", f_codeword.len() * 64, f_codeword[0].len());
+    println!("Shape of C: {} times {}", 8, hashes.len());
 }
